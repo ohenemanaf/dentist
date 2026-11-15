@@ -27,7 +27,7 @@ A fast, one-page website for a dental clinic, set up from **one settings file**.
 - **Hours table with today highlighted**, the address with a landmark, a map and a "Get directions" button.
 - **A phone bar** fixed at the bottom of the screen: Call, WhatsApp, Book.
 - **Shows up properly on Google.** The page tells search engines it's a dentist, with the opening hours, phone and address.
-- **Light and quick.** There are no frameworks or tracking scripts. The font and icons are served from the site itself, and the page is about 120 KB before the map loads.
+- **Light and quick.** There are no frameworks or tracking scripts. The font and icons are served from the site itself, and the whole page is under 100 KB before the map loads.
 
 ## Setting it up for a clinic
 
