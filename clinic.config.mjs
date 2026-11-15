@@ -17,7 +17,23 @@ export default {
     // Optional logo image, e.g. 'assets/images/logo.png'. Leave empty to use the tooth mark.
     logo: '',
     // Main colour (buttons, links, headings accents). Any CSS colour works.
-    brand: '#1f4fa3',
+    brand: '#1d5bd8',
+    // Second colour for highlights (glows, ticks, the shade guide). Any CSS colour works.
+    accent: '#14b8a6',
+
+    // Star rating shown in the hero (from Google reviews, for example). Remove to hide.
+    rating: { score: 4.9, count: 210, source: 'Google reviews' },
+
+    // Figures under the hero. These are samples: use the clinic's real numbers.
+    stats: [
+        { value: 12, suffix: '+', label: 'Years caring for smiles' },
+        { value: 8000, suffix: '+', label: 'Patients treated' },
+        { value: 4.9, decimals: 1, label: 'Average rating' },
+        { value: 6, label: 'Days open every week' },
+    ],
+
+    // Interactive whitening shade guide. Set to false to hide it.
+    shadeGuide: true,
 
     // Website address once it is live (used for sharing previews). Optional.
     url: 'https://ohenemanaf.github.io/dentist/',
@@ -45,18 +61,18 @@ export default {
     emergency: 'Toothache or a broken tooth? Call us. We keep same-day slots for emergencies.',
 
     currency: 'GH₵',
-    // icon: any name from assets/icons.svg (see README). price: a number, or text such as 'Free'.
+    // group: the filter it appears under (any words). icon: any name from assets/icons.svg (see README). price: a number, or text such as 'Free'.
     // from: true shows "from" before the price.
     services: [
-        { icon: 'stethoscope', name: 'Check-up and consultation', price: 150, text: 'A full examination, advice, and a written treatment plan with prices.' },
-        { icon: 'sparkles', name: 'Scaling and polishing', price: 400, text: 'Removes tartar and stains. Recommended every six months.' },
-        { icon: 'shield-check', name: 'Tooth-coloured fillings', price: 350, from: true, text: 'Repairs cavities with a filling that matches your tooth.' },
-        { icon: 'syringe', name: 'Extractions', price: 300, from: true, text: 'Simple and surgical removals, including wisdom teeth, under local anaesthetic.' },
-        { icon: 'heart-pulse', name: 'Root canal treatment', price: 1500, from: true, text: 'Saves an infected tooth instead of removing it.' },
-        { icon: 'smile', name: 'Teeth whitening', price: 1800, text: 'In-clinic whitening, several shades lighter in one visit.' },
-        { icon: 'crown', name: 'Crowns and bridges', price: 2000, from: true, text: 'Restores broken or missing teeth with porcelain that looks natural.' },
-        { icon: 'scan-face', name: 'Braces and aligners', price: 'Free', text: 'Free first assessment. Metal, ceramic and clear aligner options.' },
-        { icon: 'baby', name: 'Children’s dentistry', price: 120, text: 'Check-ups, fluoride and fissure sealants, at a pace that suits children.' },
+        { icon: 'stethoscope', group: 'General', name: 'Check-up and consultation', price: 150, text: 'A full examination, advice, and a written treatment plan with prices.' },
+        { icon: 'sparkles', group: 'General', name: 'Scaling and polishing', price: 400, text: 'Removes tartar and stains. Recommended every six months.' },
+        { icon: 'shield-check', group: 'General', name: 'Tooth-coloured fillings', price: 350, from: true, text: 'Repairs cavities with a filling that matches your tooth.' },
+        { icon: 'syringe', group: 'General', name: 'Extractions', price: 300, from: true, text: 'Simple and surgical removals, including wisdom teeth, under local anaesthetic.' },
+        { icon: 'heart-pulse', group: 'General', name: 'Root canal treatment', price: 1500, from: true, text: 'Saves an infected tooth instead of removing it.' },
+        { icon: 'smile', group: 'Cosmetic', name: 'Teeth whitening', price: 1800, text: 'In-clinic whitening, several shades lighter in one visit.' },
+        { icon: 'crown', group: 'Cosmetic', name: 'Crowns and bridges', price: 2000, from: true, text: 'Restores broken or missing teeth with porcelain that looks natural.' },
+        { icon: 'scan-face', group: 'Braces', name: 'Braces and aligners', price: 'Free', text: 'Free first assessment. Metal, ceramic and clear aligner options.' },
+        { icon: 'baby', group: 'Children', name: 'Children’s dentistry', price: 120, text: 'Check-ups, fluoride and fissure sealants, at a pace that suits children.' },
     ],
     priceNote: 'Prices are a guide. You get a written quote before any treatment starts.',
 
@@ -82,6 +98,9 @@ export default {
         { name: 'Sample patient', text: 'They explained every step and the price before starting. No surprises.', rating: 5 },
         { name: 'Sample parent', text: 'My son was scared of dentists. Now he asks when his next visit is.', rating: 5 },
         { name: 'Sample patient', text: 'Booked on WhatsApp in the morning and was seen that afternoon for a toothache.', rating: 5 },
+        { name: 'Sample patient', text: 'The whitening result looks natural, not fake. Friends noticed straight away.', rating: 5 },
+        { name: 'Sample patient', text: 'Clean, calm clinic and the staff remember your name.', rating: 5 },
+        { name: 'Sample patient', text: 'Paid for my braces in instalments, which made it possible for us.', rating: 5 },
     ],
 
     faqs: [

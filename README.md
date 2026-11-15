@@ -8,26 +8,41 @@ A fast, one-page website for a dental clinic, set up from **one settings file**.
 
 **[See the live demo](https://ohenemanaf.github.io/dentist/)**. It shows a fictional clinic, Brightline Dental, with sample details.
 
-![Home page with the booking form](docs/screenshots/home.png)
+![Home page](docs/screenshots/home.png)
 
-| Treatments and prices | Hours and location |
+| Live WhatsApp preview while booking | Whitening shade guide |
 |---|---|
-| ![Price list](docs/screenshots/prices.png) | ![Hours with today highlighted, and map](docs/screenshots/hours.png) |
+| ![Booking form with a phone showing the WhatsApp message](docs/screenshots/booking.png) | ![Shade slider changing a tooth's colour](docs/screenshots/shade.png) |
 
-| Phone | Booking on a closed day |
+| Treatments with filters | Hours and location |
 |---|---|
-| <img src="docs/screenshots/phone.png" width="280" alt="Home page on a phone"> | <img src="docs/screenshots/phone-booking.png" width="280" alt="Booking form refusing a Sunday"> |
+| ![Treatment cards](docs/screenshots/prices.png) | ![Hours with today highlighted, and map](docs/screenshots/hours.png) |
+
+| Phone | Phone: treatments |
+|---|---|
+| <img src="docs/screenshots/phone.png" width="280" alt="Home page on a phone"> | <img src="docs/screenshots/phone-services.png" width="280" alt="Treatment cards on a phone"> |
 
 ## What a clinic gets
 
+- **A striking first screen.** The live open/closed status sits beside a glossy animated tooth. Cards float around it showing today's hours, the star rating and a WhatsApp confirmation. Below are figures that count up when they appear.
+- **Booking with a live WhatsApp preview.** As the patient fills in the form, their message is written out in a phone mock-up beside it. Pressing send opens WhatsApp with that message.
+- **An interactive whitening shade guide.** Slide along the dental shade scale (A4 to BL1) and the tooth changes colour.
+- **Treatment cards with filters** (General, Cosmetic, Braces, Children). Each card has a price, and its "Book" link fills in the treatment on the booking form.
+- **Motion:**
+  - sections slide in as you scroll
+  - the steps timeline draws itself
+  - reviews scroll past in a moving band
+  - the header shrinks on scroll, and a progress bar runs along the top
+  - all motion turns off for visitors who choose "reduce motion"
+
 - **Live opening status.** "Open now until 6 pm", "Closing soon" or "Closed now. Opens Monday at 8 am", worked out in the clinic's time zone, whatever the visitor's own.
-- **Booking on WhatsApp.** The visitor fills in their name, treatment, day and time of day, and WhatsApp opens with the message written and addressed to the clinic. Closed days and past dates are refused with a clear message. If the clinic has no WhatsApp, the request opens in the visitor's email app instead.
+- **Booking rules.** The visitor fills in their name, treatment, day and time of day, and WhatsApp opens with the message written and addressed to the clinic. Closed days and past dates are refused with a clear message. If the clinic has no WhatsApp, the request opens in the visitor's email app instead.
 - **Treatments with prices**, as a clear price list, plus the ways to pay (cash, Mobile Money, cards, insurance).
 - **First-visit steps, team, reviews and questions**, so nervous patients know what to expect.
 - **Hours table with today highlighted**, the address with a landmark, a map and a "Get directions" button.
 - **A phone bar** fixed at the bottom of the screen: Call, WhatsApp, Book.
 - **Shows up properly on Google.** The page tells search engines it's a dentist, with the opening hours, phone and address.
-- **Light and quick.** There are no frameworks or tracking scripts. The font and icons are served from the site itself, and the whole page is under 100 KB before the map loads.
+- **Light and quick.** There are no frameworks or tracking scripts. The font and icons are served from the site itself, and the whole page is about 130 KB before the map loads.
 
 ## Setting it up for a clinic
 
@@ -38,11 +53,13 @@ A fast, one-page website for a dental clinic, set up from **one settings file**.
    |---|---|
    | `demo` | Set to `false` to remove the "demo clinic" notice |
    | `name`, `tagline`, `headline`, `intro` | The words on the first screen |
-   | `brand` | The clinic's colour. Every other shade is worked out from it. |
+   | `brand`, `accent` | The clinic's two colours. Every other shade is worked out from them. |
+   | `rating`, `stats` | Star rating and the figures under the first screen. Remove either to hide it. |
+   | `shadeGuide` | `false` hides the whitening shade guide |
    | `logo` | Optional logo image. Without it, a tooth mark in the brand colour is used. |
    | `contact` | Phone, WhatsApp number (digits only, with country code), email, address, landmark, map search |
    | `hours`, `timeZone` | Opening hours per day on a 24-hour clock, `null` for closed days |
-   | `services`, `currency`, `priceNote` | Treatments with an icon, a description and a price (`from: true` adds "from") |
+   | `services`, `currency`, `priceNote` | Treatments with a `group` (filter), an icon, a description and a price (`from: true` adds "from") |
    | `team` | Names, roles and a line about each person, with an optional photo |
    | `steps`, `reviews`, `faqs`, `payment`, `social` | The remaining sections. Empty `reviews` hides that section. |
 

@@ -28,7 +28,7 @@ if (problems.length) {
 // ── Helpers ──
 const esc = (s = '') => String(s).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
 const icon = (name, cls = 'icon') => `<svg class="${cls}" aria-hidden="true"><use href="assets/icons.svg#${name}"/></svg>`;
-const initials = (name) => name.replace(/^(Dr\.?|Mr\.?|Mrs\.?|Ms\.?)\s+/i, '').split(/\s+/).map((w) => w[0]).slice(0, 2).join('');
+const initials = (name) => name.replace(/^(Dr\.?|Mr\.?|Mrs\.?|Ms\.?)\s+/i, '').split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase();
 const telHref = 'tel:' + c.contact.phone.replace(/[^\d+]/g, '');
 const wa = c.contact.whatsapp;
 const waHref = (text) => `https://wa.me/${wa}?text=${encodeURIComponent(text)}`;
@@ -55,11 +55,30 @@ const hoursRows = groups
     .join('\n');
 const closedDays = DAYS.filter((d) => !c.hours[d]).map((d) => DAY_NAMES[d] + 's');
 
-const book = (label, cls = 'btn btn--primary') =>
-    `<a class="${cls}" href="#book">${icon('calendar-check')}<span>${label}</span></a>`;
-
-const nav = [['#services', 'Treatments and prices'], ['#team', 'Our team'], ['#visit', 'Hours and location'], ['#questions', 'Questions']];
+const nav = [['#services', 'Treatments'], ['#team', 'Our team'], ['#reviews', 'Reviews'], ['#visit', 'Visit us'], ['#questions', 'Questions']];
 const socials = Object.entries(c.social || {}).filter(([, u]) => u);
+const groupsList = [...new Set(c.services.map((s) => s.group).filter(Boolean))];
+const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+const starRow = (n, size = '') => `<span class="stars${size}" aria-hidden="true">${icon('star').repeat(Math.round(n))}</span>`;
+
+// A large glossy tooth for the hero (enamel gradient, highlight, soft shadow).
+const HERO_TOOTH = `<svg class="hero-tooth" viewBox="0 0 220 240" aria-hidden="true">
+  <defs>
+    <linearGradient id="enamel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#eef3fb"/><stop offset="1" stop-color="#c9d6ec"/></linearGradient>
+    <radialGradient id="shine" cx=".32" cy=".22" r=".45"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  </defs>
+  <ellipse cx="110" cy="228" rx="62" ry="8" fill="#000" opacity=".18"/>
+  <path d="M64 14C30 14 14 40 14 74c0 30 13 48 21 74 7 23 9 48 17 68 5 12 12 15 18 15 12 0 15-12 19-30 4-23 9-43 31-43s27 20 31 43c4 18 7 30 19 30 6 0 13-3 18-15 8-20 10-45 17-68 8-26 21-44 21-74 0-34-16-60-50-60-23 0-36 14-56 14S87 14 64 14Z" fill="url(#enamel)"/>
+  <path d="M64 14C30 14 14 40 14 74c0 30 13 48 21 74 7 23 9 48 17 68 5 12 12 15 18 15 12 0 15-12 19-30 4-23 9-43 31-43s27 20 31 43c4 18 7 30 19 30 6 0 13-3 18-15 8-20 10-45 17-68 8-26 21-44 21-74 0-34-16-60-50-60-23 0-36 14-56 14S87 14 64 14Z" fill="url(#shine)"/>
+  <path d="M46 52c12-12 30-14 44-6" stroke="#fff" stroke-width="7" stroke-linecap="round" fill="none" opacity=".9"/>
+</svg>`;
+
+// Whitening shade guide (VITA classical order, darkest to lightest, plus bleach shades).
+const SHADES = [
+    ['A4', '#c9a46e'], ['C4', '#bfa27a'], ['A3.5', '#d4b07c'], ['B4', '#d6b57f'], ['A3', '#dcbf8f'], ['D3', '#d8c19c'], ['B3', '#dec396'],
+    ['A2', '#e5cfa6'], ['C2', '#ddcbac'], ['D2', '#e2d2b4'], ['A1', '#ecdcbd'], ['B2', '#eadab8'], ['B1', '#f1e6cc'], ['BL4', '#f5eedd'], ['BL1', '#fbf8f0'],
+];
+const SHADE_TOOTH = `<svg class="shade__tooth" viewBox="0 0 220 240" aria-hidden="true"><path data-shade-fill d="M64 14C30 14 14 40 14 74c0 30 13 48 21 74 7 23 9 48 17 68 5 12 12 15 18 15 12 0 15-12 19-30 4-23 9-43 31-43s27 20 31 43c4 18 7 30 19 30 6 0 13-3 18-15 8-20 10-45 17-68 8-26 21-44 21-74 0-34-16-60-50-60-23 0-36 14-56 14S87 14 64 14Z" fill="${SHADES[4][1]}"/><path d="M46 52c12-12 30-14 44-6" stroke="#fff" stroke-width="7" stroke-linecap="round" fill="none" opacity=".7"/></svg>`;
 
 const html = `<!doctype html>
 <html lang="en-GB">
@@ -76,7 +95,8 @@ ${c.url ? `<meta property="og:url" content="${esc(c.url)}">\n<link rel="canonica
 <link rel="icon" href="data:image/svg+xml,${encodeURIComponent(TOOTH.replace('class="mark"', 'xmlns="http://www.w3.org/2000/svg"').replace('currentColor', c.brand))}">
 <link rel="preload" href="assets/fonts/manrope.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/css/site.css">
-<style>:root { --brand: ${esc(c.brand)}; }</style>
+<style>:root { --brand: ${esc(c.brand)}; --accent: ${esc(c.accent || c.brand)}; }</style>
+<script>document.documentElement.classList.add('js')</script>
 <script type="application/ld+json">${JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'Dentist',
@@ -86,6 +106,7 @@ ${c.url ? `<meta property="og:url" content="${esc(c.url)}">\n<link rel="canonica
     email: c.contact.email || undefined,
     address: c.contact.address,
     url: c.url || undefined,
+    aggregateRating: c.rating ? { '@type': 'AggregateRating', ratingValue: c.rating.score, reviewCount: c.rating.count } : undefined,
     openingHoursSpecification: DAYS.filter((d) => c.hours[d]).map((d) => ({
         '@type': 'OpeningHoursSpecification', dayOfWeek: DAY_NAMES[d], opens: c.hours[d][0], closes: c.hours[d][1],
     })),
@@ -93,120 +114,185 @@ ${c.url ? `<meta property="og:url" content="${esc(c.url)}">\n<link rel="canonica
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
+<div class="progress" aria-hidden="true"></div>
 ${c.demo ? `<p class="demo-note">${icon('info')} Demo clinic: the name, people, numbers and prices on this page are samples.</p>` : ''}
-<header class="header">
+<header class="header" data-header>
   <div class="wrap header__row">
     <a class="brand" href="#top">${brandMark}<span><strong>${esc(c.name)}</strong><small>${esc(c.tagline)}</small></span></a>
     <nav class="nav" aria-label="Main">${nav.map(([h, t]) => `<a href="${h}">${t}</a>`).join('')}</nav>
-    <a class="btn btn--ghost header__call" href="${telHref}">${icon('phone')}<span>${esc(c.contact.phone)}</span></a>
+    <a class="btn btn--primary header__cta" href="#book">${icon('calendar-check')}<span>Book a visit</span></a>
   </div>
 </header>
 
 <main id="main">
 <section class="hero" id="top">
+  <div class="hero__glow hero__glow--a"></div><div class="hero__glow hero__glow--b"></div>
   <div class="wrap hero__grid">
     <div class="hero__text">
-      <p class="status" data-status><span class="status__dot"></span><span data-status-text>Opening hours below</span></p>
+      <p class="status" data-status><span class="status__dot"></span><span data-status-text>See our opening hours below</span></p>
       <h1>${esc(c.headline)}</h1>
       <p class="lead">${esc(c.intro)}</p>
       <div class="actions">
-        ${book('Book an appointment')}
-        <a class="btn btn--ghost" href="${telHref}">${icon('phone')}<span>Call ${esc(c.contact.phone)}</span></a>
+        <a class="btn btn--primary btn--lg" href="#book">${icon('calendar-check')}<span>Book an appointment</span></a>
+        <a class="btn btn--glass btn--lg" href="${telHref}">${icon('phone')}<span>Call ${esc(c.contact.phone)}</span></a>
       </div>
-      <p class="emergency">${icon('siren')}<span>${esc(c.emergency)}</span></p>
+      ${c.rating ? `<p class="hero__rating">${starRow(5)}<span><strong>${c.rating.score.toFixed(1)}</strong> from ${c.rating.count} ${esc(c.rating.source)}</span></p>` : ''}
     </div>
-
-    <form class="booking" id="book" data-booking novalidate>
-      <h2>Book an appointment</h2>
-      <p class="booking__sub">${wa ? 'Your request opens in WhatsApp, ready to send. We reply to confirm a time.' : 'Your request opens in your email app, ready to send. We reply to confirm a time.'}</p>
-      <div class="field">
-        <label for="b-name">Your name</label>
-        <input id="b-name" name="name" autocomplete="name" required>
-      </div>
-      <div class="field">
-        <label for="b-service">What do you need?</label>
-        <select id="b-service" name="service">
-          ${c.services.map((s) => `<option>${esc(s.name)}</option>`).join('')}
-          <option>Toothache or emergency</option>
-          <option>Not sure yet</option>
-        </select>
-      </div>
-      <div class="field-row">
-        <div class="field">
-          <label for="b-date">Preferred day</label>
-          <input id="b-date" name="date" type="date" required>
-        </div>
-        <div class="field">
-          <label for="b-time">Time of day</label>
-          <select id="b-time" name="time"><option>Morning</option><option>Afternoon</option><option>Any time</option></select>
-        </div>
-      </div>
-      <div class="field">
-        <label for="b-note">Anything we should know? <span class="optional">(optional)</span></label>
-        <textarea id="b-note" name="note" rows="2"></textarea>
-      </div>
-      <p class="booking__error" data-error role="alert" hidden></p>
-      <button class="btn btn--primary btn--wide" type="submit">${icon(wa ? 'message-circle' : 'mail')}<span>${wa ? 'Send on WhatsApp' : 'Send by email'}</span></button>
-      ${closedDays.length ? `<p class="booking__foot">Closed on ${closedDays.join(' and ')}.</p>` : ''}
-    </form>
+    <div class="hero__art" aria-hidden="true">
+      <div class="orbit"></div><div class="orbit orbit--2"></div>
+      ${HERO_TOOTH}
+      <span class="sparkle sparkle--1">${icon('sparkles')}</span><span class="sparkle sparkle--2">${icon('sparkles')}</span>
+      <div class="float-card float-card--status"><span class="float-card__icon float-card__icon--ok">${icon('clock')}</span><span><small>Today</small><strong data-today-hours>See hours</strong></span></div>
+      ${c.rating ? `<div class="float-card float-card--rating"><span class="float-card__icon float-card__icon--star">${icon('star')}</span><span><small>${esc(c.rating.source)}</small><strong>${c.rating.score.toFixed(1)} out of 5</strong></span></div>` : ''}
+      ${wa ? `<div class="float-card float-card--chat"><span class="float-card__icon float-card__icon--wa">${icon('message-circle')}</span><span><small>WhatsApp</small><strong>Booking confirmed</strong></span><span class="ticks">${icon('check')}${icon('check')}</span></div>` : ''}
+    </div>
   </div>
+  ${c.stats?.length ? `<div class="wrap"><ul class="stats">
+    ${c.stats.map((s) => `<li data-reveal><strong data-count="${s.value}" data-decimals="${s.decimals || 0}" data-suffix="${esc(s.suffix || '')}">${s.value.toLocaleString('en-GB', { minimumFractionDigits: s.decimals || 0 })}${esc(s.suffix || '')}</strong><span>${esc(s.label)}</span></li>`).join('\n    ')}
+  </ul></div>` : ''}
 </section>
 
 <section class="section" id="services" aria-labelledby="services-title">
   <div class="wrap">
-    <div class="section__head">
-      <h2 id="services-title">Treatments and prices</h2>
+    <div class="section__head" data-reveal>
+      <p class="kicker">${icon('toothbrush-sparkles')} Treatments</p>
+      <h2 id="services-title">Everything your smile needs, priced up front</h2>
       <p>${esc(c.priceNote)}</p>
     </div>
-    <ul class="menu">
-      ${c.services.map((s) => `<li class="menu__item">
-        <span class="menu__icon">${icon(s.icon)}</span>
-        <span class="menu__text"><strong>${esc(s.name)}</strong><span>${esc(s.text)}</span></span>
-        <span class="menu__price">${price(s)}</span>
+    ${groupsList.length > 1 ? `<div class="filters" role="group" aria-label="Show treatments">
+      <button type="button" class="chip is-active" data-filter="all" aria-pressed="true">All</button>
+      ${groupsList.map((g) => `<button type="button" class="chip" data-filter="${slug(g)}" aria-pressed="false">${esc(g)}</button>`).join('')}
+    </div>` : ''}
+    <ul class="services">
+      ${c.services.map((s, i) => `<li class="service" data-group="${s.group ? slug(s.group) : ''}" data-reveal style="--i:${i % 3}">
+        <span class="service__icon">${icon(s.icon)}</span>
+        <h3>${esc(s.name)}</h3>
+        <p>${esc(s.text)}</p>
+        <div class="service__foot"><span class="service__price">${price(s)}</span><a href="#book" data-book="${esc(s.name)}">Book${icon('arrow-right')}</a></div>
       </li>`).join('\n      ')}
     </ul>
-    <p class="pay">${icon('wallet')}<span><strong>Ways to pay:</strong> ${c.payment.map(esc).join(', ')}</span></p>
+    <p class="pay" data-reveal>${icon('wallet')}<span><strong>Ways to pay</strong>${c.payment.map((p) => `<span class="pay__item">${esc(p)}</span>`).join('')}</span></p>
   </div>
 </section>
 
+${c.shadeGuide ? `<section class="section shade" aria-labelledby="shade-title">
+  <div class="wrap shade__grid">
+    <div data-reveal>
+      <p class="kicker">${icon('sparkles')} Teeth whitening</p>
+      <h2 id="shade-title">See how much lighter your teeth could be</h2>
+      <p class="shade__text">Dentists match tooth colour against a shade guide, from darker shades such as A4 to the brightest bleach shades. Slide to see the range. Your dentist will tell you which shade is realistic for your teeth.</p>
+      <label class="shade__label" for="shade">Shade <strong data-shade-name>${SHADES[4][0]}</strong></label>
+      <input class="shade__range" id="shade" type="range" min="0" max="${SHADES.length - 1}" value="4" data-shades='${JSON.stringify(SHADES)}'>
+      <div class="shade__scale" aria-hidden="true">${SHADES.map(([n, col]) => `<span style="background:${col}" title="${n}"></span>`).join('')}</div>
+      <a class="btn btn--primary" href="#book" data-book="Teeth whitening">${icon('smile')}<span>Book a whitening consultation</span></a>
+    </div>
+    <div class="shade__stage" data-reveal="zoom">${SHADE_TOOTH}<span class="shade__badge" data-shade-badge>${SHADES[4][0]}</span></div>
+  </div>
+</section>` : ''}
+
 <section class="section section--tint" aria-labelledby="visit-steps">
   <div class="wrap">
-    <div class="section__head"><h2 id="visit-steps">Your first visit</h2></div>
-    <ol class="steps">
-      ${c.steps.map((s) => `<li><strong>${esc(s.title)}</strong><span>${esc(s.text)}</span></li>`).join('\n      ')}
+    <div class="section__head" data-reveal>
+      <p class="kicker">${icon('heart-handshake')} Your first visit</p>
+      <h2 id="visit-steps">No surprises, from booking to treatment</h2>
+    </div>
+    <ol class="steps" data-reveal-line>
+      ${c.steps.map((s, i) => `<li data-reveal style="--i:${i}"><span class="steps__n">${i + 1}</span><strong>${esc(s.title)}</strong><span>${esc(s.text)}</span></li>`).join('\n      ')}
     </ol>
   </div>
 </section>
 
 <section class="section" id="team" aria-labelledby="team-title">
   <div class="wrap">
-    <div class="section__head"><h2 id="team-title">Our team</h2></div>
+    <div class="section__head" data-reveal>
+      <p class="kicker">${icon('users')} Our team</p>
+      <h2 id="team-title">The people looking after you</h2>
+    </div>
     <ul class="team">
-      ${c.team.map((p) => `<li class="person">
-        ${p.photo ? `<img class="person__photo" src="${esc(p.photo)}" alt="" width="72" height="72" loading="lazy">` : `<span class="person__photo person__photo--initials" aria-hidden="true">${esc(initials(p.name))}</span>`}
-        <div><strong>${esc(p.name)}</strong><span class="person__role">${esc(p.role)}</span><p>${esc(p.text)}</p></div>
+      ${c.team.map((p, i) => `<li class="person" data-reveal style="--i:${i}">
+        <div class="person__photo">${p.photo ? `<img src="${esc(p.photo)}" alt="" width="400" height="400" loading="lazy">` : `<span aria-hidden="true">${esc(initials(p.name))}</span>`}</div>
+        <strong>${esc(p.name)}</strong>
+        <span class="person__role">${esc(p.role)}</span>
+        <p>${esc(p.text)}</p>
       </li>`).join('\n      ')}
     </ul>
   </div>
 </section>
 
-${c.reviews.length ? `<section class="section section--tint" aria-labelledby="reviews-title">
-  <div class="wrap">
-    <div class="section__head"><h2 id="reviews-title">What patients say</h2></div>
-    <ul class="reviews">
-      ${c.reviews.map((r) => `<li class="review">
-        <span class="stars" role="img" aria-label="${r.rating} out of 5 stars">${icon('star').repeat(r.rating)}</span>
+${c.reviews.length ? `<section class="section reviews-band" id="reviews" aria-labelledby="reviews-title">
+  <div class="wrap section__head" data-reveal>
+    <p class="kicker">${icon('quote')} Reviews</p>
+    <h2 id="reviews-title">What patients say</h2>
+    ${c.rating ? `<p class="reviews-band__score">${starRow(5)} <strong>${c.rating.score.toFixed(1)}</strong> from ${c.rating.count} ${esc(c.rating.source)}</p>` : ''}
+  </div>
+  <div class="marquee">
+    <ul class="marquee__track">
+      ${[...c.reviews, ...c.reviews].map((r, i) => `<li class="review"${i >= c.reviews.length ? ' aria-hidden="true"' : ''}>
+        ${starRow(r.rating)}<span class="visually-hidden">${r.rating} out of 5 stars</span>
         <blockquote>${esc(r.text)}</blockquote>
-        <cite>${esc(r.name)}</cite>
+        <cite><span class="review__avatar">${esc(initials(r.name))}</span>${esc(r.name)}</cite>
       </li>`).join('\n      ')}
     </ul>
   </div>
 </section>` : ''}
 
+<section class="section section--tint" id="book" aria-labelledby="book-title">
+  <div class="wrap book">
+    <div data-reveal>
+      <p class="kicker">${icon('calendar-check')} Book an appointment</p>
+      <h2 id="book-title">Book in under a minute</h2>
+      <p class="book__text">${wa ? 'Fill in the form and your message appears on the right. Press send and WhatsApp opens with it ready to go. We reply to confirm a time.' : 'Fill in the form and your email app opens with the request ready to send. We reply to confirm a time.'}</p>
+      <form class="booking" data-booking novalidate>
+        <div class="field-row">
+          <div class="field">
+            <label for="b-name">Your name</label>
+            <input id="b-name" name="name" autocomplete="name" required>
+          </div>
+          <div class="field">
+            <label for="b-service">What do you need?</label>
+            <select id="b-service" name="service">
+              ${c.services.map((s) => `<option>${esc(s.name)}</option>`).join('')}
+              <option>Toothache or emergency</option>
+              <option>Not sure yet</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="b-date">Preferred day</label>
+            <input id="b-date" name="date" type="date" required>
+          </div>
+          <div class="field">
+            <label for="b-time">Time of day</label>
+            <select id="b-time" name="time"><option>Morning</option><option>Afternoon</option><option>Any time</option></select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="b-note">Anything we should know? <span class="optional">(optional)</span></label>
+          <textarea id="b-note" name="note" rows="2"></textarea>
+        </div>
+        <p class="booking__error" data-error role="alert" hidden></p>
+        <button class="btn btn--primary btn--lg btn--wide" type="submit">${icon(wa ? 'message-circle' : 'mail')}<span>${wa ? 'Send on WhatsApp' : 'Send by email'}</span></button>
+        ${closedDays.length ? `<p class="booking__foot">Closed on ${closedDays.join(' and ')}. ${esc(c.emergency)}</p>` : ''}
+      </form>
+    </div>
+    ${wa ? `<div class="phone" data-reveal="zoom" aria-hidden="true">
+      <div class="phone__screen">
+        <div class="phone__bar"><span class="phone__avatar">${TOOTH}</span><span><strong>${esc(c.name)}</strong><small>usually replies within the hour</small></span></div>
+        <div class="phone__chat">
+          <p class="bubble bubble--out" data-preview></p>
+          <p class="bubble bubble--in">Thank you! We have a slot for you. See you soon.</p>
+        </div>
+      </div>
+    </div>` : ''}
+  </div>
+</section>
+
 <section class="section" id="visit" aria-labelledby="visit-title">
   <div class="wrap visit">
-    <div>
-      <div class="section__head section__head--left"><h2 id="visit-title">Hours and location</h2></div>
+    <div data-reveal>
+      <p class="kicker">${icon('map-pin')} Visit us</p>
+      <h2 id="visit-title">Hours and location</h2>
       <table class="hours" data-hours><tbody>
 ${hoursRows}
       </tbody></table>
@@ -218,7 +304,7 @@ ${hoursRows}
       </ul>
       <a class="btn btn--ghost" href="https://www.google.com/maps/dir/?api=1&amp;destination=${encodeURIComponent(c.contact.mapQuery)}" target="_blank" rel="noopener">${icon('navigation')}<span>Get directions</span></a>
     </div>
-    <div class="map">
+    <div class="map" data-reveal="zoom">
       <iframe title="Map showing ${esc(c.name)}" src="https://maps.google.com/maps?q=${encodeURIComponent(c.contact.mapQuery)}&amp;z=15&amp;output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
     </div>
   </div>
@@ -226,20 +312,42 @@ ${hoursRows}
 
 <section class="section section--tint" id="questions" aria-labelledby="faq-title">
   <div class="wrap faq">
-    <div class="section__head section__head--left"><h2 id="faq-title">Questions</h2><p>Something else? ${wa ? `<a href="${waHref(`Hello ${c.name}, I have a question: `)}" target="_blank" rel="noopener">Ask us on WhatsApp</a>` : `<a href="${telHref}">Call us</a>`}.</p></div>
+    <div data-reveal>
+      <p class="kicker">${icon('info')} Questions</p>
+      <h2 id="faq-title">Good to know</h2>
+      <p class="faq__more">Something else? ${wa ? `<a href="${waHref(`Hello ${c.name}, I have a question: `)}" target="_blank" rel="noopener">Ask us on WhatsApp</a>` : `<a href="${telHref}">Call us</a>`}.</p>
+    </div>
+    <div data-reveal>
+      ${c.faqs.map((f) => `<details><summary>${esc(f.q)}<span class="plus" aria-hidden="true"></span></summary><div class="details__body"><p>${esc(f.a)}</p></div></details>`).join('\n      ')}
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="wrap cta__inner" data-reveal="zoom">
     <div>
-      ${c.faqs.map((f) => `<details><summary>${esc(f.q)}${icon('chevron-down', 'icon chevron')}</summary><p>${esc(f.a)}</p></details>`).join('\n      ')}
+      <h2>Need a dentist today?</h2>
+      <p>${esc(c.emergency)}</p>
+    </div>
+    <div class="cta__actions">
+      <a class="btn btn--white btn--lg" href="${telHref}">${icon('phone')}<span>Call ${esc(c.contact.phone)}</span></a>
+      ${wa ? `<a class="btn btn--glass btn--lg" href="${waHref(`Hello ${c.name}, I need to see a dentist urgently. `)}" target="_blank" rel="noopener">${icon('message-circle')}<span>WhatsApp</span></a>` : ''}
     </div>
   </div>
 </section>
 </main>
 
 <footer class="footer">
-  <div class="wrap footer__row">
-    <p class="brand brand--footer">${brandMark}<span><strong>${esc(c.name)}</strong><small>${esc(c.contact.address)}</small></span></p>
-    ${socials.length ? `<p class="footer__social">${socials.map(([k, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${k[0].toUpperCase() + k.slice(1)}</a>`).join('')}</p>` : ''}
-    <p class="footer__small">© <span data-year>${new Date().getFullYear()}</span> ${esc(c.name)}</p>
+  <div class="wrap footer__grid">
+    <div>
+      <p class="brand brand--footer">${brandMark}<span><strong>${esc(c.name)}</strong><small>${esc(c.tagline)}</small></span></p>
+      ${socials.length ? `<p class="footer__social">${socials.map(([k, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${k[0].toUpperCase() + k.slice(1)}</a>`).join('')}</p>` : ''}
+    </div>
+    <div><h3>Visit</h3><p>${esc(c.contact.address)}</p><p><a href="${telHref}">${esc(c.contact.phone)}</a></p>${c.contact.email ? `<p><a href="mailto:${esc(c.contact.email)}">${esc(c.contact.email)}</a></p>` : ''}</div>
+    <div><h3>Hours</h3>${groups.map((g) => `<p>${g.days.length > 1 ? `${DAY_NAMES[g.days[0]].slice(0, 3)} to ${DAY_NAMES[g.days.at(-1)].slice(0, 3)}` : DAY_NAMES[g.days[0]].slice(0, 3)}: ${g.h ? `${formatTime(g.h[0])} to ${formatTime(g.h[1])}` : 'Closed'}</p>`).join('')}</div>
+    <div><h3>Explore</h3>${nav.map(([h, t]) => `<p><a href="${h}">${t}</a></p>`).join('')}</div>
   </div>
+  <div class="wrap footer__base">© <span data-year>${new Date().getFullYear()}</span> ${esc(c.name)}</div>
 </footer>
 
 <nav class="dock" aria-label="Quick contact">
